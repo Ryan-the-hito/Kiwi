@@ -131,7 +131,7 @@ class window_about(QWidget):  # 增加说明页面(About)
 		widg2.setLayout(blay2)
 
 		widg3 = QWidget()
-		lbl1 = QLabel('Version 0.0.2', self)
+		lbl1 = QLabel('Version 0.0.3', self)
 		blay3 = QHBoxLayout()
 		blay3.setContentsMargins(0, 0, 0, 0)
 		blay3.addStretch()
@@ -594,7 +594,7 @@ class window_update(QWidget):  # 增加更新页面（Check for Updates）
 
 	def initUI(self):  # 说明页面内信息
 
-		self.lbl = QLabel('Current Version: v0.0.2', self)
+		self.lbl = QLabel('Current Version: v0.0.3', self)
 		self.lbl.move(30, 45)
 
 		lbl0 = QLabel('Download Update:', self)
@@ -929,6 +929,8 @@ class window3(QWidget):  # 主窗口
 					if n * self.per_length >= 3 * self.window_size:
 						self.l3.move(n * self.per_length - 2 * self.window_size, 0)
 					# 显示
+					self.lbl_past.setStyleSheet(
+						"QLabel { color: white; }")
 					self.lbl_past.setText(str(self.nowtime))
 					self.lbl_past.adjustSize()
 				if self.nowtime == SetTime:
@@ -939,9 +941,6 @@ class window3(QWidget):  # 主窗口
 					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
 								f"Time up! Take a rest now!")
 					self.resttimer.start(60 * 1000)
-					# 显示
-					self.lbl_past.setText('0')
-					self.lbl_past.adjustSize()
 				if self.nowtime > SetTime:
 					self.mytimer.stop()
 					self.nowtime = 0
@@ -1057,23 +1056,26 @@ class window3(QWidget):  # 主窗口
 			signal.alarm(0)
 
 	def rest_timer(self):
-		rest_length = int(codecs.open(BasePath + "RestTime.txt", 'r', encoding='utf-8').read())
-		self.resttime += 1
-		if self.resttime < rest_length:
-			self.lbl_past.setText(str(self.resttime))
-			self.lbl_past.adjustSize()
-		if self.resttime >= rest_length:
-			self.resttimer.stop()
-			self.resttime = 0
-			self.mytimer.start(60000)
-			CMD = '''
-				on run argv
-					display notification (item 2 of argv) with title (item 1 of argv)
-				end run'''
-			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
-						f"Rest ends! Concentrate now!")
-			self.lbl_past.setText('0')
-			self.lbl_past.adjustSize()
+		active_app = NSWorkspace.sharedWorkspace().activeApplication()
+		if active_app['NSApplicationName'] != 'loginwindow':
+			rest_length = int(codecs.open(BasePath + "RestTime.txt", 'r', encoding='utf-8').read())
+			self.resttime += 1
+			if self.resttime < rest_length:
+				self.lbl_past.setStyleSheet(
+					"QLabel { color: yellow; }")
+				self.lbl_past.setText(str(self.resttime))
+				self.lbl_past.adjustSize()
+			if self.resttime == rest_length:
+				self.mytimer.start(60000)
+				CMD = '''
+					on run argv
+						display notification (item 2 of argv) with title (item 1 of argv)
+					end run'''
+				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+							f"Rest ends! Concentrate now!")
+			if self.resttime > rest_length:
+				self.resttimer.stop()
+				self.resttime = 0
 
 	def activate(self):  # 设置窗口显示
 		if action3.isChecked():
@@ -1086,6 +1088,8 @@ class window3(QWidget):  # 主窗口
 						f"Concentrate now!")
 			# SetTime 只是一个倍数，用来计数的。实际上每一分钟计算一次，然后到了规定的时间，就重新开始下一轮。
 		if not action3.isChecked():
+			self.lbl_past.setStyleSheet(
+				"QLabel { color: white; }")
 			self.lbl_past.setText('0')
 			self.lbl_past.adjustSize()
 			if self.mytimer.isActive():

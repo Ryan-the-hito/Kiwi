@@ -3,7 +3,7 @@
 
 block_cipher = None
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 a = Analysis(
     ['Kiwi.py'],
