@@ -131,7 +131,7 @@ class window_about(QWidget):  # 增加说明页面(About)
 		widg2.setLayout(blay2)
 
 		widg3 = QWidget()
-		lbl1 = QLabel('Version 0.0.1', self)
+		lbl1 = QLabel('Version 0.0.2', self)
 		blay3 = QHBoxLayout()
 		blay3.setContentsMargins(0, 0, 0, 0)
 		blay3.addStretch()
@@ -594,7 +594,7 @@ class window_update(QWidget):  # 增加更新页面（Check for Updates）
 
 	def initUI(self):  # 说明页面内信息
 
-		self.lbl = QLabel('Current Version: v0.0.1', self)
+		self.lbl = QLabel('Current Version: v0.0.2', self)
 		self.lbl.move(30, 45)
 
 		lbl0 = QLabel('Download Update:', self)
@@ -705,6 +705,7 @@ class window3(QWidget):  # 主窗口
 		self.resttimer.timeout.connect(self.rest_timer)
 		self.nowtime = 0
 		self.backtime = int(codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read())
+		self.resttime = 0
 
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 		self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
@@ -813,6 +814,21 @@ class window3(QWidget):  # 主窗口
 			self.l3.setFixedSize(4*self.window_size, self.window_size)
 			self.l3.move(self.window_size, 0)
 
+			y = int((self.window_size) / 3)
+			self.lbl_past = QLabel('', self)
+			self.lbl_past.setFixedSize(2 * y, y)
+			self.lbl_past.setText(str(self.nowtime))
+			self.lbl_past.adjustSize()
+			font = PyQt6.QtGui.QFont()
+			font.setFamily("Arial")
+			font.setBold(True)
+			self.fontsize = int(self.window_size / 3)
+			font.setPointSize(self.fontsize)
+			self.lbl_past.setFont(font)
+			self.lbl_past.setStyleSheet(
+				"QLabel { color: white; }")
+			self.lbl_past.move(self.window_size, y)
+
 			home_dir = str(Path.home())
 			tarname1 = "KiwiAppPath"
 			fulldir1 = os.path.join(home_dir, tarname1)
@@ -836,6 +852,10 @@ class window3(QWidget):  # 主窗口
 			if not is_dock_autohide:
 				self.move(0, small_height + menubar_height)
 			self.show()
+
+			self.lbl_past.raise_()
+
+			self.assigntoall()
 
 	def timeout_handler(self, signum, frame):
 		raise TimeoutException("Timeout")
@@ -908,6 +928,9 @@ class window3(QWidget):  # 主窗口
 					# 移动动画
 					if n * self.per_length >= 3 * self.window_size:
 						self.l3.move(n * self.per_length - 2 * self.window_size, 0)
+					# 显示
+					self.lbl_past.setText(str(self.nowtime))
+					self.lbl_past.adjustSize()
 				if self.nowtime == SetTime:
 					CMD = '''
 						on run argv
@@ -915,10 +938,13 @@ class window3(QWidget):  # 主窗口
 						end run'''
 					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
 								f"Time up! Take a rest now!")
-					rest_length = int(codecs.open(BasePath + "RestTime.txt", 'r', encoding='utf-8').read())
-					self.resttimer.start(60 * 1000 * rest_length)
+					self.resttimer.start(60 * 1000)
+					# 显示
+					self.lbl_past.setText('0')
+					self.lbl_past.adjustSize()
 				if self.nowtime > SetTime:
 					self.mytimer.stop()
+					self.nowtime = 0
 					self.backtimer.start(1000)
 			except TimeoutException:
 				CMD = '''
@@ -1031,14 +1057,23 @@ class window3(QWidget):  # 主窗口
 			signal.alarm(0)
 
 	def rest_timer(self):
-		self.resttimer.stop()
-		self.mytimer.start(60000)
-		CMD = '''
-			on run argv
-				display notification (item 2 of argv) with title (item 1 of argv)
-			end run'''
-		self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
-					f"Rest ends! Concentrate now!")
+		rest_length = int(codecs.open(BasePath + "RestTime.txt", 'r', encoding='utf-8').read())
+		self.resttime += 1
+		if self.resttime < rest_length:
+			self.lbl_past.setText(str(self.resttime))
+			self.lbl_past.adjustSize()
+		if self.resttime >= rest_length:
+			self.resttimer.stop()
+			self.resttime = 0
+			self.mytimer.start(60000)
+			CMD = '''
+				on run argv
+					display notification (item 2 of argv) with title (item 1 of argv)
+				end run'''
+			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+						f"Rest ends! Concentrate now!")
+			self.lbl_past.setText('0')
+			self.lbl_past.adjustSize()
 
 	def activate(self):  # 设置窗口显示
 		if action3.isChecked():
@@ -1051,11 +1086,27 @@ class window3(QWidget):  # 主窗口
 						f"Concentrate now!")
 			# SetTime 只是一个倍数，用来计数的。实际上每一分钟计算一次，然后到了规定的时间，就重新开始下一轮。
 		if not action3.isChecked():
+			self.lbl_past.setText('0')
+			self.lbl_past.adjustSize()
 			if self.mytimer.isActive():
 				self.mytimer.stop()
 				self.backtimer.start(1000)
 			if self.resttimer.isActive():
 				self.resttimer.stop()
+
+	def assigntoall(self):
+		cmd = '''on run
+			tell application "System Events" to set activeApp to "Kiwi"
+			tell application "System Events" to tell UI element activeApp of list 1 of process "Dock"
+				perform action "AXShowMenu"
+				click menu item "Options" of menu 1
+				click menu item "All Desktops" of menu 1 of menu item "Options" of menu 1
+			end tell
+		end run'''
+		try:
+			subprocess.call(['osascript', '-e', cmd])
+		except Exception as e:
+			pass
 
 	def ReLa(self):
 		ReLa = codecs.open(BasePath + "ReLa.txt", 'r', encoding='utf-8').read()
