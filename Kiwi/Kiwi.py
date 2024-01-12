@@ -7,7 +7,7 @@
 import codecs
 from PyQt6.QtWidgets import (QWidget, QPushButton, QApplication,
 							 QLabel, QHBoxLayout, QVBoxLayout, QLineEdit,
-							 QSystemTrayIcon, QMenu, QDialog, QMenuBar, QFileDialog)
+							 QSystemTrayIcon, QMenu, QDialog, QCheckBox)
 from PyQt6.QtCore import Qt, QTimer, QSize
 from PyQt6.QtGui import QAction, QIcon, QColor, QMovie, QPixmap
 import PyQt6.QtGui
@@ -30,6 +30,7 @@ import matplotlib
 matplotlib.use('QtAgg') # 切换到TkAgg后端，您也可以尝试其他后端，比如'Qt5Agg', 'MacOSX', 'GTK3Agg'等
 import matplotlib.pyplot as plt
 import numpy as np
+import datetime
 try:
 	from AppKit import NSWorkspace
 except ImportError:
@@ -81,12 +82,6 @@ menu.addAction(quit)
 # Add the menu to the tray
 tray.setContextMenu(menu)
 
-# create a system menu
-btna4 = QAction("&Switch on Coconut!")
-sysmenu = QMenuBar()
-file_menu = sysmenu.addMenu("&Actions")
-file_menu.addAction(btna4)
-
 
 class window_about(QWidget):  # 增加说明页面(About)
 	def __init__(self):
@@ -131,7 +126,7 @@ class window_about(QWidget):  # 增加说明页面(About)
 		widg2.setLayout(blay2)
 
 		widg3 = QWidget()
-		lbl1 = QLabel('Version 0.0.5', self)
+		lbl1 = QLabel('Version 1.0.0', self)
 		blay3 = QHBoxLayout()
 		blay3.setContentsMargins(0, 0, 0, 0)
 		blay3.addStretch()
@@ -594,7 +589,7 @@ class window_update(QWidget):  # 增加更新页面（Check for Updates）
 
 	def initUI(self):  # 说明页面内信息
 
-		self.lbl = QLabel('Current Version: v0.0.5', self)
+		self.lbl = QLabel('Current Version: v1.0.0', self)
 		self.lbl.move(30, 45)
 
 		lbl0 = QLabel('Download Update:', self)
@@ -829,6 +824,26 @@ class window3(QWidget):  # 主窗口
 				"QLabel { color: white; }")
 			self.lbl_past.move(self.window_size, y)
 
+			self.btn0_1 = QPushButton('', self)
+			self.btn0_1.setFixedSize(self.window_size, self.window_size)
+			self.btn0_1.setStyleSheet('''
+				QPushButton{
+				border: transparent;
+				background-color: transparent;
+				border-image: url(/Applications/Kiwi.app/Contents/Resources/cosine_plot0.png);
+				}
+				QPushButton:pressed{
+				border: 1px outset grey;
+				background-color: #0085FF;
+				border-radius: 4px;
+				padding: 1px;
+				color: #FFFFFF
+				}
+				''')
+			self.btn0_1.move(0, 0)
+			self.pausing_timer = 0
+			self.pausing_item = 0
+
 			home_dir = str(Path.home())
 			tarname1 = "KiwiAppPath"
 			fulldir1 = os.path.join(home_dir, tarname1)
@@ -854,6 +869,7 @@ class window3(QWidget):  # 主窗口
 			self.show()
 
 			self.lbl_past.raise_()
+			self.btn0_1.raise_()
 
 			self.assigntoall()
 
@@ -940,7 +956,32 @@ class window3(QWidget):  # 主窗口
 						end run'''
 					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
 								f"Time up! Take a rest now!")
+					self.resttime = 0
 					self.resttimer.start(60 * 1000)
+					LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
+					if LastCert == '1':
+						home_dir = str(Path.home())
+						tarname1 = "TomatoAppPath"
+						fulldir1 = os.path.join(home_dir, tarname1)
+						if not os.path.exists(fulldir1):
+							os.mkdir(fulldir1)
+						tarname_dia = "Diary"
+						fulldir_dia = os.path.join(fulldir1, tarname_dia)
+						if not os.path.exists(fulldir_dia):
+							os.mkdir(fulldir_dia)
+						ISOTIMEFORMAT = '%Y-%m-%d diary'
+						theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+						diary_name = str(theTime) + ".md"
+						diary_file = os.path.join(fulldir_dia, diary_name)
+						if not os.path.exists(diary_file):
+							with open(diary_file, 'a', encoding='utf-8') as f0:
+								f0.write(f'# {theTime}')
+						ISOTIMEFORMAT = '%H:%M:%S '
+						theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+						rest_length = codecs.open(BasePath + 'RestTime.txt', 'r', encoding='utf-8').read()
+						pretext = '\n\n---\n\n## Rest starts at ' + theTime + ' for ' + rest_length + ' minutes. '
+						with open(diary_file, 'a', encoding='utf-8') as f0:
+							f0.write(pretext)
 				if self.nowtime > SetTime:
 					self.mytimer.stop()
 					self.nowtime = 0
@@ -1066,6 +1107,7 @@ class window3(QWidget):  # 主窗口
 				self.lbl_past.setText(str(self.resttime))
 				self.lbl_past.adjustSize()
 			if self.resttime == rest_length:
+				self.nowtime = 0
 				self.mytimer.start(60000)
 				CMD = '''
 					on run argv
@@ -1073,6 +1115,30 @@ class window3(QWidget):  # 主窗口
 					end run'''
 				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
 							f"Rest ends! Concentrate now!")
+				LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
+				if LastCert == '1':
+					home_dir = str(Path.home())
+					tarname1 = "TomatoAppPath"
+					fulldir1 = os.path.join(home_dir, tarname1)
+					if not os.path.exists(fulldir1):
+						os.mkdir(fulldir1)
+					tarname_dia = "Diary"
+					fulldir_dia = os.path.join(fulldir1, tarname_dia)
+					if not os.path.exists(fulldir_dia):
+						os.mkdir(fulldir_dia)
+					ISOTIMEFORMAT = '%Y-%m-%d diary'
+					theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+					diary_name = str(theTime) + ".md"
+					diary_file = os.path.join(fulldir_dia, diary_name)
+					if not os.path.exists(diary_file):
+						with open(diary_file, 'a', encoding='utf-8') as f0:
+							f0.write(f'# {theTime}')
+					ISOTIMEFORMAT = '%H:%M:%S '
+					theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+					length = codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read()
+					pretext = '\n\n---\n\n## Concentration round starts at ' + theTime + ' for ' + length + ' minutes. '
+					with open(diary_file, 'a', encoding='utf-8') as f0:
+						f0.write(pretext)
 			if self.resttime > rest_length:
 				self.resttimer.stop()
 				self.resttime = 0
@@ -1086,8 +1152,76 @@ class window3(QWidget):  # 主窗口
 				end run'''
 			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
 						f"Concentrate now!")
+			LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
+			if LastCert == '1':
+				home_dir = str(Path.home())
+				tarname1 = "TomatoAppPath"
+				fulldir1 = os.path.join(home_dir, tarname1)
+				if not os.path.exists(fulldir1):
+					os.mkdir(fulldir1)
+				tarname_dia = "Diary"
+				fulldir_dia = os.path.join(fulldir1, tarname_dia)
+				if not os.path.exists(fulldir_dia):
+					os.mkdir(fulldir_dia)
+				ISOTIMEFORMAT = '%Y-%m-%d diary'
+				theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+				diary_name = str(theTime) + ".md"
+				diary_file = os.path.join(fulldir_dia, diary_name)
+				if not os.path.exists(diary_file):
+					with open(diary_file, 'a', encoding='utf-8') as f0:
+						f0.write(f'# {theTime}')
+				ISOTIMEFORMAT = '%H:%M:%S '
+				theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+				length = codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read()
+				pretext = '\n\n---\n\n## Concentration round starts at ' + theTime + ' for ' + length + ' minutes. '
+				with open(diary_file, 'a', encoding='utf-8') as f0:
+					f0.write(pretext)
 			# SetTime 只是一个倍数，用来计数的。实际上每一分钟计算一次，然后到了规定的时间，就重新开始下一轮。
 		if not action3.isChecked():
+			self.btn0_1.setStyleSheet('''
+				QPushButton{
+				border: transparent;
+				background-color: transparent;
+				border-image: url(/Applications/Kiwi.app/Contents/Resources/cosine_plot0.png);
+				}
+				QPushButton:pressed{
+				border: 1px outset grey;
+				background-color: #0085FF;
+				border-radius: 4px;
+				padding: 1px;
+				color: #FFFFFF
+				}
+				''')
+			CMD = '''
+				on run argv
+					display notification (item 2 of argv) with title (item 1 of argv)
+				end run'''
+			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+						f"Concentration round ends and take a rest now!")
+			LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
+			if LastCert == '1':
+				home_dir = str(Path.home())
+				tarname1 = "TomatoAppPath"
+				fulldir1 = os.path.join(home_dir, tarname1)
+				if not os.path.exists(fulldir1):
+					os.mkdir(fulldir1)
+				tarname_dia = "Diary"
+				fulldir_dia = os.path.join(fulldir1, tarname_dia)
+				if not os.path.exists(fulldir_dia):
+					os.mkdir(fulldir_dia)
+				ISOTIMEFORMAT = '%Y-%m-%d diary'
+				theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+				diary_name = str(theTime) + ".md"
+				diary_file = os.path.join(fulldir_dia, diary_name)
+				if not os.path.exists(diary_file):
+					with open(diary_file, 'a', encoding='utf-8') as f0:
+						f0.write(f'# {theTime}')
+				ISOTIMEFORMAT = '%H:%M:%S '
+				theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
+				rest_length = codecs.open(BasePath + 'RestTime.txt', 'r', encoding='utf-8').read()
+				pretext = '\n\n---\n\n## Rest starts at ' + theTime + ' for ' + rest_length + ' minutes. '
+				with open(diary_file, 'a', encoding='utf-8') as f0:
+					f0.write(pretext)
 			self.lbl_past.setStyleSheet(
 				"QLabel { color: white; }")
 			self.lbl_past.setText('0')
@@ -1099,6 +1233,64 @@ class window3(QWidget):  # 主窗口
 			if self.resttimer.isActive():
 				self.resttimer.stop()
 				self.resttime = 0
+
+	def pause_timer(self):
+		if action3.isChecked():
+			if not (self.mytimer.isActive() and self.resttimer.isActive()):
+				if self.pausing_timer % 2 == 1:  #no pause
+					self.btn0_1.setStyleSheet('''
+						QPushButton{
+						border: transparent;
+						background-color: transparent;
+						border-image: url(/Applications/Kiwi.app/Contents/Resources/cosine_plot0.png);
+						}
+						QPushButton:pressed{
+						border: 1px outset grey;
+						background-color: #0085FF;
+						border-radius: 4px;
+						padding: 1px;
+						color: #FFFFFF
+						}
+						''')
+					CMD = '''
+						on run argv
+							display notification (item 2 of argv) with title (item 1 of argv)
+						end run'''
+					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+								f"Concentration round resumed!")
+					if self.pausing_item == 1:
+						self.mytimer.start(60000)
+					if self.pausing_item == 2:
+						self.resttimer.start(60000)
+					self.pausing_item = 0
+				if self.pausing_timer % 2 == 0:  # yes pause
+					self.btn0_1.setStyleSheet('''
+						QPushButton{
+						border: transparent;
+						background-color: transparent;
+						border-image: url(/Applications/Kiwi.app/Contents/Resources/pause3.png);
+						}
+						QPushButton:pressed{
+						border: 1px outset grey;
+						background-color: #0085FF;
+						border-radius: 4px;
+						padding: 1px;
+						color: #FFFFFF
+						}
+						''')
+					CMD = '''
+						on run argv
+							display notification (item 2 of argv) with title (item 1 of argv)
+						end run'''
+					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+								f"Concentration round paused!")
+					if self.mytimer.isActive():
+						self.mytimer.stop()
+						self.pausing_item = 1
+					if self.resttimer.isActive():
+						self.resttimer.stop()
+						self.pausing_item = 2
+				self.pausing_timer += 1
 
 	def assigntoall(self):
 		cmd = '''on run
@@ -1135,7 +1327,7 @@ class window4(QWidget):  # Customization settings
 
 	def initUI(self):  # 设置窗口内布局
 		self.setUpMainWindow()
-		self.setFixedSize(500, 180)
+		self.setFixedSize(500, 220)
 		self.center()
 		self.setWindowTitle('Customization settings')
 		self.setFocus()
@@ -1156,9 +1348,28 @@ class window4(QWidget):  # Customization settings
 		text2 = codecs.open(BasePath + 'RestTime.txt', 'r', encoding='utf-8').read()
 		self.le2.setText(text2)
 
+		self.checkBox1 = QCheckBox('Record the focus rounds in Tomato', self)
+		LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
+		if LastCert == '1':
+			self.checkBox1.setChecked(True)
+		if LastCert == '0':
+			self.checkBox1.setChecked(False)
+		self.checkBox1.clicked.connect(self.record_tomato)
+
+		self.btn_0 = QPushButton('No Tomato yet? Get Tomato here', self)
+		self.btn_0.clicked.connect(self.get_tomato)
+		self.btn_0.setFixedSize(220, 20)
+
 		self.btn_1 = QPushButton('Save', self)
 		self.btn_1.clicked.connect(self.SetTime)
 		self.btn_1.setFixedSize(150, 20)
+
+		qw0 = QWidget()
+		vbox0 = QHBoxLayout()
+		vbox0.setContentsMargins(0, 0, 0, 0)
+		vbox0.addWidget(self.checkBox1)
+		vbox0.addWidget(self.btn_0)
+		qw0.setLayout(vbox0)
 
 		qw1 = QWidget()
 		vbox1 = QHBoxLayout()
@@ -1188,8 +1399,20 @@ class window4(QWidget):  # Customization settings
 		vbox2.addWidget(self.le1)
 		vbox2.addWidget(qw6)
 		vbox2.addWidget(self.le2)
+		vbox2.addWidget(qw0)
 		vbox2.addWidget(qw1)
 		self.setLayout(vbox2)
+
+	def record_tomato(self):
+		if self.checkBox1.isChecked():
+			with open(BasePath + "Record.txt", 'w', encoding='utf-8') as f0:
+				f0.write('1')
+		if not self.checkBox1.isChecked():
+			with open(BasePath + "Record.txt", 'w', encoding='utf-8') as f0:
+				f0.write('0')
+
+	def get_tomato(self):
+		webbrowser.open('https://github.com/Ryan-the-hito/Tomato')
 	
 	def SetTime(self):
 		if self.le1.text() != '' and self.le1.text() != '0':
@@ -1352,7 +1575,7 @@ if __name__ == '__main__':
 			action2.triggered.connect(w2.activate)
 			action3.triggered.connect(w3.activate)
 			action7.triggered.connect(w4.activate)
-			btna4.triggered.connect(w3.activate)
+			w3.btn0_1.clicked.connect(w3.pause_timer)
 			quit.triggered.connect(w4.totalquit)
 			app.setStyleSheet(style_sheet_ori)
 			app.exec()

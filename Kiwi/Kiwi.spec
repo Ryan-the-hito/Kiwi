@@ -3,13 +3,13 @@
 
 block_cipher = None
 
-__version__ = '0.0.4'
+__version__ = '1.0.0'
 
 a = Analysis(
     ['Kiwi.py'],
     pathex=['/Users/ryanshenefield/Downloads/Kiwi.py'],
     binaries=[],
-    datas=[('kiwi-logo.icns', '.'), ('kiwi-dsk.icns', '.'), ('kiwi-logo.png', '.'), ('wechat50.png', '.'), ('wechat20.png', '.'), ('wechat10.png', '.'), ('wechat5.png', '.'), ('alipay50.png', '.'), ('alipay20.png', '.'), ('alipay10.png', '.'), ('alipay5.png', '.'), ('RestTime.txt', '.'), ('SetTime.txt', '.'), ('ReLa.txt', '.'), ('green.gif', '.'), ('DockVi.txt', '.'), ('menu_height.txt', '.'), ('DockRe.txt', '.'), ('cosine_plot0.png', '.')],
+    datas=[('kiwi-logo.icns', '.'), ('kiwi-dsk.icns', '.'), ('kiwi-logo.png', '.'), ('wechat50.png', '.'), ('wechat20.png', '.'), ('wechat10.png', '.'), ('wechat5.png', '.'), ('alipay50.png', '.'), ('alipay20.png', '.'), ('alipay10.png', '.'), ('alipay5.png', '.'), ('RestTime.txt', '.'), ('SetTime.txt', '.'), ('ReLa.txt', '.'), ('green.gif', '.'), ('DockVi.txt', '.'), ('menu_height.txt', '.'), ('DockRe.txt', '.'), ('cosine_plot0.png', '.'), ('Record.txt', '.'), ('pause3.png', '.')],
     hiddenimports=['subprocess', 'AppKit'],
     hookspath=[],
     hooksconfig={},
