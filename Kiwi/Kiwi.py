@@ -131,7 +131,7 @@ class window_about(QWidget):  # 增加说明页面(About)
 		widg2.setLayout(blay2)
 
 		widg3 = QWidget()
-		lbl1 = QLabel('Version 0.0.4', self)
+		lbl1 = QLabel('Version 0.0.5', self)
 		blay3 = QHBoxLayout()
 		blay3.setContentsMargins(0, 0, 0, 0)
 		blay3.addStretch()
@@ -594,7 +594,7 @@ class window_update(QWidget):  # 增加更新页面（Check for Updates）
 
 	def initUI(self):  # 说明页面内信息
 
-		self.lbl = QLabel('Current Version: v0.0.4', self)
+		self.lbl = QLabel('Current Version: v0.0.5', self)
 		self.lbl.move(30, 45)
 
 		lbl0 = QLabel('Download Update:', self)
@@ -704,7 +704,7 @@ class window3(QWidget):  # 主窗口
 		self.resttimer = QTimer(self)
 		self.resttimer.timeout.connect(self.rest_timer)
 		self.nowtime = 0
-		self.backtime = int(codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read())
+		self.backtime = 0
 		self.resttime = 0
 
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
@@ -1028,7 +1028,7 @@ class window3(QWidget):  # 主窗口
 						self.l3.move(n * self.per_length - 2 * self.window_size, 0)
 					if n * self.per_length < 3 * self.window_size:
 						self.l3.move(self.window_size, 0)
-				elif self.backtime == 0:
+				if self.backtime <= 0:
 					self.backtimer.stop()
 					img = Image.open(BasePath + 'cosine_plot0.png')
 					img_smooth_scaled = img.resize((self.per_length, self.window_size), Image.LANCZOS)
@@ -1036,7 +1036,7 @@ class window3(QWidget):  # 主窗口
 					self.l2.setPixmap(qpixmap)  # 在l2里面，调用setPixmap命令，建立一个图像存放框，并将之前的图像png存放在这个框框里。
 					self.l2.setFixedSize(self.per_length, self.window_size)
 					self.l3.move(self.window_size, 0)
-					self.backtime = int(codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read())
+					self.backtime = 0
 			except TimeoutException:
 				CMD = '''
 						on run argv
@@ -1094,9 +1094,11 @@ class window3(QWidget):  # 主窗口
 			self.lbl_past.adjustSize()
 			if self.mytimer.isActive():
 				self.mytimer.stop()
+				self.nowtime = 0
 				self.backtimer.start(1000)
 			if self.resttimer.isActive():
 				self.resttimer.stop()
+				self.resttime = 0
 
 	def assigntoall(self):
 		cmd = '''on run
