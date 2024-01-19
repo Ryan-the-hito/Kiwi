@@ -126,7 +126,7 @@ class window_about(QWidget):  # 增加说明页面(About)
 		widg2.setLayout(blay2)
 
 		widg3 = QWidget()
-		lbl1 = QLabel('Version 1.0.0', self)
+		lbl1 = QLabel('Version 1.0.1', self)
 		blay3 = QHBoxLayout()
 		blay3.setContentsMargins(0, 0, 0, 0)
 		blay3.addStretch()
@@ -589,7 +589,7 @@ class window_update(QWidget):  # 增加更新页面（Check for Updates）
 
 	def initUI(self):  # 说明页面内信息
 
-		self.lbl = QLabel('Current Version: v1.0.0', self)
+		self.lbl = QLabel('Current Version: v1.0.1', self)
 		self.lbl.move(30, 45)
 
 		lbl0 = QLabel('Download Update:', self)
@@ -954,7 +954,7 @@ class window3(QWidget):  # 主窗口
 						on run argv
 							display notification (item 2 of argv) with title (item 1 of argv)
 						end run'''
-					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+					self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 								f"Time up! Take a rest now!")
 					self.resttime = 0
 					self.resttimer.start(60 * 1000)
@@ -991,7 +991,7 @@ class window3(QWidget):  # 主窗口
 				on run argv
 					display notification (item 2 of argv) with title (item 1 of argv)
 				end run'''
-				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+				self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 							f"There seems to be an error. Please try again.")
 			except Exception as e:
 				with open(BasePath + 'errorfile.txt', 'w', encoding='utf-8') as f0:
@@ -1000,7 +1000,7 @@ class window3(QWidget):  # 主窗口
 				on run argv
 					display notification (item 2 of argv) with title (item 1 of argv)
 				end run'''
-				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+				self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 							f"Error. Please try again.")
 			signal.alarm(0)
 
@@ -1083,7 +1083,7 @@ class window3(QWidget):  # 主窗口
 						on run argv
 							display notification (item 2 of argv) with title (item 1 of argv)
 						end run'''
-				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+				self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 							f"There seems to be an error. Please try again.")
 			except Exception as e:
 				with open(BasePath + 'errorfile.txt', 'w', encoding='utf-8') as f0:
@@ -1092,7 +1092,7 @@ class window3(QWidget):  # 主窗口
 						on run argv
 							display notification (item 2 of argv) with title (item 1 of argv)
 						end run'''
-				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+				self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 							f"Error. Please try again.")
 			signal.alarm(0)
 
@@ -1113,7 +1113,7 @@ class window3(QWidget):  # 主窗口
 					on run argv
 						display notification (item 2 of argv) with title (item 1 of argv)
 					end run'''
-				self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+				self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 							f"Rest ends! Concentrate now!")
 				LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
 				if LastCert == '1':
@@ -1133,12 +1133,14 @@ class window3(QWidget):  # 主窗口
 					if not os.path.exists(diary_file):
 						with open(diary_file, 'a', encoding='utf-8') as f0:
 							f0.write(f'# {theTime}')
-					ISOTIMEFORMAT = '%H:%M:%S '
-					theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
-					length = codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read()
-					pretext = '\n\n---\n\n## Concentration round starts at ' + theTime + ' for ' + length + ' minutes. '
-					with open(diary_file, 'a', encoding='utf-8') as f0:
-						f0.write(pretext)
+					cmd = """
+						tell application "/Applications/Kiwi.app/Contents/Auto/KiwiAuto.app"
+							activate
+						end tell"""
+					try:
+						subprocess.call(['osascript', '-e', cmd])
+					except Exception as e:
+						pass
 			if self.resttime > rest_length:
 				self.resttimer.stop()
 				self.resttime = 0
@@ -1150,7 +1152,7 @@ class window3(QWidget):  # 主窗口
 				on run argv
 					display notification (item 2 of argv) with title (item 1 of argv)
 				end run'''
-			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+			self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 						f"Concentrate now!")
 			LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
 			if LastCert == '1':
@@ -1170,12 +1172,14 @@ class window3(QWidget):  # 主窗口
 				if not os.path.exists(diary_file):
 					with open(diary_file, 'a', encoding='utf-8') as f0:
 						f0.write(f'# {theTime}')
-				ISOTIMEFORMAT = '%H:%M:%S '
-				theTime = datetime.datetime.now().strftime(ISOTIMEFORMAT)
-				length = codecs.open(BasePath + 'SetTime.txt', 'r', encoding='utf-8').read()
-				pretext = '\n\n---\n\n## Concentration round starts at ' + theTime + ' for ' + length + ' minutes. '
-				with open(diary_file, 'a', encoding='utf-8') as f0:
-					f0.write(pretext)
+				cmd = """
+					tell application "/Applications/Kiwi.app/Contents/Auto/KiwiAuto.app"
+						activate
+					end tell"""
+				try:
+					subprocess.call(['osascript', '-e', cmd])
+				except Exception as e:
+					pass
 			# SetTime 只是一个倍数，用来计数的。实际上每一分钟计算一次，然后到了规定的时间，就重新开始下一轮。
 		if not action3.isChecked():
 			self.btn0_1.setStyleSheet('''
@@ -1196,7 +1200,7 @@ class window3(QWidget):  # 主窗口
 				on run argv
 					display notification (item 2 of argv) with title (item 1 of argv)
 				end run'''
-			self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+			self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 						f"Concentration round ends and take a rest now!")
 			LastCert = codecs.open(BasePath + "Record.txt", 'r', encoding='utf-8').read()
 			if LastCert == '1':
@@ -1233,6 +1237,9 @@ class window3(QWidget):  # 主窗口
 			if self.resttimer.isActive():
 				self.resttimer.stop()
 				self.resttime = 0
+			else:
+				if self.backtime > 0:
+					self.backtimer.start(1000)
 
 	def pause_timer(self):
 		if action3.isChecked():
@@ -1256,7 +1263,7 @@ class window3(QWidget):  # 主窗口
 						on run argv
 							display notification (item 2 of argv) with title (item 1 of argv)
 						end run'''
-					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+					self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 								f"Concentration round resumed!")
 					if self.pausing_item == 1:
 						self.mytimer.start(60000)
@@ -1282,7 +1289,7 @@ class window3(QWidget):  # 主窗口
 						on run argv
 							display notification (item 2 of argv) with title (item 1 of argv)
 						end run'''
-					self.notify(CMD, "Kiwi: Tomato Clock at Your Dock",
+					self.notify(CMD, "Kiwi: Pomodoro Timer at Your Dock",
 								f"Concentration round paused!")
 					if self.mytimer.isActive():
 						self.mytimer.stop()
@@ -1334,7 +1341,7 @@ class window4(QWidget):  # Customization settings
 		self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
 	def setUpMainWindow(self):
-		self.lbl1 = QLabel('A tomato clock round (minutes): ', self)
+		self.lbl1 = QLabel('A pomodoro timer round (minutes): ', self)
 
 		self.le1 = QLineEdit(self)
 		self.le1.setPlaceholderText('Minutes. Numbers only, no decimal. Default=25')

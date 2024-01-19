@@ -3,14 +3,19 @@
 
 block_cipher = None
 
-__version__ = '1.0.1'
+__version__ = '1.0.0'
+
+info_plist = {
+    'LSUIElement': True,
+    #'LSBackgroundOnly': True,
+}
 
 a = Analysis(
-    ['Kiwi.py'],
-    pathex=['/Users/ryanshenefield/Downloads/Kiwi.py'],
+    ['KiwiAuto.py'],
+    pathex=['/Users/ryanshenefield/Downloads/KiwiAuto.py'],
     binaries=[],
-    datas=[('kiwi-logo.icns', '.'), ('kiwi-dsk.icns', '.'), ('kiwi-logo.png', '.'), ('wechat50.png', '.'), ('wechat20.png', '.'), ('wechat10.png', '.'), ('wechat5.png', '.'), ('alipay50.png', '.'), ('alipay20.png', '.'), ('alipay10.png', '.'), ('alipay5.png', '.'), ('RestTime.txt', '.'), ('SetTime.txt', '.'), ('ReLa.txt', '.'), ('green.gif', '.'), ('DockVi.txt', '.'), ('menu_height.txt', '.'), ('DockRe.txt', '.'), ('cosine_plot0.png', '.'), ('Record.txt', '.'), ('pause3.png', '.')],
-    hiddenimports=['subprocess', 'AppKit'],
+    datas=[('kiwi-dsk.icns', '.'), ('kiwi-logo.png', '.')],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -28,7 +33,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Kiwi',
+    name='KiwiAuto',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -48,12 +53,13 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='Kiwi',
+    name='KiwiAuto',
 )
 app = BUNDLE(
     coll,
-    name='Kiwi.app',
+    name='KiwiAuto.app',
     icon='kiwi-dsk.icns',
+    info_plist=info_plist,
     bundle_identifier=None,
     version=__version__,
 )
