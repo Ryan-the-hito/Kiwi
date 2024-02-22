@@ -30,7 +30,7 @@ class window1(QWidget):
 
         self.screen_width = app.primaryScreen().geometry().width()
         self.screen_height = app.primaryScreen().geometry().height()
-        self.resize(self.screen_width, self.screen_height)
+        self.setFixedSize(self.screen_width, self.screen_height)
 
         self.l1 = QLabel(self)
         png = PyQt6.QtGui.QPixmap(BasePath + 'kiwi-logo.png')  # 调用QtGui.QPixmap方法，打开一个图片，存放在变量png中
@@ -46,7 +46,7 @@ class window1(QWidget):
         font.setPointSize(35)
         self.lbl0.setFont(font)
 
-        self.lbl1 = QLabel('What are you focusing on right now?👀', self)
+        self.lbl1 = QLabel('What are you focusing on right now?', self)
         font = PyQt6.QtGui.QFont()
         font.setFamily("Arial")
         font.setBold(True)
